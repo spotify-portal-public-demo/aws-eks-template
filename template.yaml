@@ -1,0 +1,118 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: aws-eks-template
+  title: AWS - EKS (Kubernetes)
+  description: Create an EKS (Kubernetes) cluster in AWS
+  tags:
+    - infra
+    - terraform
+    - aws
+    - eks
+spec:
+  owner: group:infraops
+  type: kubernetes
+
+  parameters:
+    - title: About
+      required:
+        - component_id
+      properties:
+        component_id:
+          title: Name
+          type: string
+          description: The unique name of the cluster
+          ui:field: EntityNamePicker
+        description:
+          title: Description
+          type: string
+          description: Description of the cluster
+
+    - title: Ownership
+      required:
+        - owner
+      properties:
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the cluster
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              - kind: Group
+
+    - title: Configuration
+      required:
+        - region
+      properties:
+        region:
+          title: AWS Region
+          type: string
+          description: AWS region of the cluster
+          enum:
+            - us-east-1
+            - eu-west-1
+            - ap-southeast-1
+
+    - title: Location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - spotify-portal-public-demo
+
+  steps:
+    - id: template
+      name: Fetch Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        copyWithoutTemplating:
+          - .github/workflows/*
+        values:
+          component_id: ${{ parameters.component_id }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          region: ${{ parameters.region }}
+          destination: ${{ parameters.repoUrl | parseRepoUrl }}
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: This is ${{ parameters.component_id }}
+        repoVisibility: public
+        defaultBranch: main
+        protectEnforceAdmins: false
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
+    text:
+      - title: Connecting to your cluster
+        content: |-
+          To connect to your new EKS cluster, run the below command:
+          ```
+          aws eks update-kubeconfig --region ${{ parameters.region }} --name ${{ parameters.component_id }}
+          ```
+
+          Note: it will take a few minutes for your cluster to be ready.
