@@ -1,0 +1,8 @@
+site_name: AWS EKS Template
+site_description: Backstage software template for provisioning EKS clusters on AWS
+
+nav:
+  - Overview: index.md
+
+plugins:
+  - techdocs-core
