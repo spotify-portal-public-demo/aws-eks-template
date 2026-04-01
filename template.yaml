@@ -9,6 +9,8 @@ metadata:
     - terraform
     - aws
     - eks
+  annotations:
+    backstage.io/techdocs-ref: dir:.
 spec:
   owner: group:infraops
   type: kubernetes

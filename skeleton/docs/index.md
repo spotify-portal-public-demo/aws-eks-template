@@ -1,28 +1,42 @@
-## ${{ values.component_id }}
+# ${{ values.component_id }}
 
 ${{ values.description }}
 
-## Getting started
+## Overview
 
-Start write your documentation by adding more markdown (.md) files to this folder (/docs) or replace the content in this file.
+This repository contains the Terraform configuration for the **${{ values.component_id }}** EKS cluster, provisioned via the AWS EKS Backstage template.
 
-## Table of Contents
+| Property | Value |
+|---|---|
+| Cluster name | `${{ values.component_id }}` |
+| AWS region | `${{ values.region }}` |
+| Owner | `${{ values.owner }}` |
 
-The Table of Contents on the right is generated automatically based on the hierarchy
-of headings. Only use one H1 (`#` in Markdown) per file.
+## AWS resources
 
-## Site navigation
+| Resource | Name |
+|---|---|
+| EKS cluster | `${{ values.component_id }}` |
+| EKS node group | `${{ values.component_id }}-nodes` |
+| Cluster IAM role | `${{ values.component_id }}-cluster-role` |
+| Node IAM role | `${{ values.component_id }}-node-role` |
 
-For new pages to appear in the left hand navigation you need edit the `mkdocs.yml`
-file in root of your repo. The navigation can also link out to other sites.
+The cluster runs in the default VPC of the chosen region. Terraform state is stored in S3.
 
-Alternatively, if there is no `nav` section in `mkdocs.yml`, a navigation section
-will be created for you. However, you will not be able to use alternate titles for
-pages, or include links to other sites.
+## Connecting to the cluster
 
-Note that MkDocs uses `mkdocs.yml`, not `mkdocs.yaml`, although both appear to work.
-See also <https://www.mkdocs.org/user-guide/configuration/>.
+```bash
+aws eks update-kubeconfig --region ${{ values.region }} --name ${{ values.component_id }}
+```
 
-## Support
+Then verify your nodes are ready:
 
-That's it. If you need support, reach out in [#docs-like-code](https://discord.com/channels/687207715902193673/714754240933003266) on Discord.
+```bash
+kubectl get nodes
+```
+
+> The IAM principal you use must either be the one that created the cluster, or have been added to the cluster's `aws-auth` ConfigMap.
+
+## Deploying changes
+
+Changes to the Terraform configuration are applied via the **Terraform Apply** GitHub Actions workflow. Open a pull request — the plan workflow runs automatically on PRs, and apply runs on merge to `main`.
