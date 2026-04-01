@@ -4,8 +4,6 @@ metadata:
   name: aws-eks-template
   title: AWS - EKS (Kubernetes)
   description: Create an EKS (Kubernetes) cluster in AWS
-  annotations:
-    backstage.io/techdocs-ref: dir:.
   tags:
     - infra
     - terraform
