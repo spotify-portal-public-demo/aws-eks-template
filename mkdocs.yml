@@ -1,6 +1,6 @@
 site_name: AWS EKS Template
 site_description: Backstage software template for provisioning an EKS cluster on AWS using Terraform
-docs_dir: .
+docs_dir: docs
 
 plugins:
   - techdocs-core
